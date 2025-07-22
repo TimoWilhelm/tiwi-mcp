@@ -1,6 +1,7 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { launch, type BrowserWorker } from "@cloudflare/playwright";
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent<Env> {
@@ -30,6 +31,21 @@ export class MyMCP extends McpAgent<Env> {
 				});
 
 				return { content: [{ type: "image", data: response.image!, mimeType: "image/jpeg" }] }
+			}
+		);
+
+		this.server.tool(
+			"getSiteTitle",
+			{
+				url: z.string().url()
+			},
+			async ({ url }) => {
+				const browser = await launch(this.env.BROWSER);
+				const page = await browser.newPage();
+				await page.goto(url);
+				const title = await page.title();
+
+				return { content: [{ type: "text", text: title }] }
 			}
 		);
 
