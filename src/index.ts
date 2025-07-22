@@ -1,7 +1,8 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { launch, type BrowserWorker } from "@cloudflare/playwright";
+import { launch } from "@cloudflare/playwright";
+import * as base64 from "@stablelib/base64";
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent<Env> {
@@ -46,6 +47,21 @@ export class MyMCP extends McpAgent<Env> {
 				const title = await page.title();
 
 				return { content: [{ type: "text", text: title }] }
+			}
+		);
+
+		this.server.tool(
+			"getSiteScreenshot",
+			{
+				url: z.string().url()
+			},
+			async ({ url }) => {
+				const browser = await launch(this.env.BROWSER);
+				const page = await browser.newPage();
+				await page.goto(url);
+				const screenshot = await page.screenshot();
+
+				return { content: [{ type: "image", mimeType: "image/png", data: base64.encode(screenshot) }] }
 			}
 		);
 

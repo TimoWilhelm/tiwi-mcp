@@ -14,6 +14,7 @@
 	"dependencies": {
 		"@cloudflare/playwright": "^0.0.10",
 		"@modelcontextprotocol/sdk": "1.13.1",
+		"@stablelib/base64": "^2.0.1",
 		"agents": "^0.0.100",
 		"zod": "^3.25.67"
 	},
