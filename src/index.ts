@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 // Define our MCP agent with tools
-export class MyMCP extends McpAgent {
+export class MyMCP extends McpAgent<Env> {
 	server = new McpServer({
 		name: "Authless Calculator",
 		version: "1.0.0",
@@ -17,6 +17,20 @@ export class MyMCP extends McpAgent {
 			async ({ a, b }) => ({
 				content: [{ type: "text", text: String(a + b) }],
 			})
+		);
+
+		this.server.tool(
+			"createImage",
+			{
+				description: z.string().describe("The image desription")
+			},
+			async ({ description }) => {
+				const response = await this.env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+					prompt: description
+				});
+
+				return { content: [{ type: "image", data: response.image!, mimeType: "image/jpeg" }] }
+			}
 		);
 
 		// Calculator tool with multiple operations
